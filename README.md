@@ -3,11 +3,6 @@
 - “Nobel(노벨 문학상) + Realize(실현하다)”  
 - AI와 Docker/Kubernetes 클라우드 시스템을 활용한 글 평가/수정 서비스.
 
-<<<<<<< HEAD
-=======
-
-
-
 #
 ### **1. Python 가상환경**
 1. 가상환경 생성
@@ -41,4 +36,3 @@
 ```bash
 pip install -r requirements.txt
 ```
->>>>>>> 7a0c61751bbb93700c1df19718b15336783e9dbd
