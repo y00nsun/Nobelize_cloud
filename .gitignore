@@ -5,5 +5,5 @@ venv/
 .env
 
 # PDF, 인덱스 디렉터리
-data/
+# data/
 embeddings/
