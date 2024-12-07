@@ -1,3 +1,5 @@
+# faiss index 파일 손상 여부 확인용
+
 # import faiss
 # import os
 
