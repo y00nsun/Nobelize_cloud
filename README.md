@@ -1,10 +1,14 @@
 # Nobelize
-**AI 기반의 글 평가/수정 서비스, “**Nobelize**”**  
-- “Nobel(노벨 문학상) + Realize(실현하다)”  
+
+**AI 기반의 글 평가/수정 서비스, “**Nobelize**”**
+
+- “Nobel(노벨 문학상) + Realize(실현하다)”
 - AI와 Docker/Kubernetes 클라우드 시스템을 활용한 글 평가/수정 서비스.
 
 #
+
 ### 폴더 구조
+
 ```plaintext
 Nobelize_cloud/
 ├── main.py                  # FastAPI 서버 실행 코드
@@ -19,6 +23,7 @@ Nobelize_cloud/
 ```
 
 ### **1. Python 가상환경**
+
 1. 가상환경 생성
 
    ```bash
@@ -26,12 +31,15 @@ Nobelize_cloud/
    ```
 
 2. 가상환경 활성화
+
    - Windows (CMD):
+
      ```bash
      venv\Scripts\activate
      ```
 
    - Windows (PowerShell):
+
      ```powershell
      .\venv\Scripts\activate
      ```
@@ -47,6 +55,14 @@ Nobelize_cloud/
    ```
 
 ### **2. `requirements.txt`**
+
 ```bash
 pip install -r requirements.txt
+```
+
+### **3. `실행`**
+
+```bash
+uvicorn main:app --reload
+.\venv\Scripts\activate
 ```

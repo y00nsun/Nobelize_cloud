@@ -16,7 +16,12 @@
 
 import faiss
 import numpy as np
+import os
 
-dimension = 128  # 임베딩 차원
+# 1. 임베딩 벡터의 차원
+dimension = 1536
 index = faiss.IndexFlatL2(dimension)
-faiss.write_index(index, "embeddings/faiss_index_re.index")
+
+# 2. 디렉토리 생성
+index_path = "embeddings/faiss_index3.index"
+os.makedirs(os.path.dirname(index_path), exist_ok=True)

@@ -21,6 +21,7 @@ DIMENSION = 1536
 faiss_index = load_faiss_index(INDEX_PATH, DIMENSION)
 
 
+#upload type1: 사용자가 자기 작품을 업로드 -> data 아래에 저장된다.
 @app.post("/upload")
 async def upload_pdf(file: UploadFile):
     """PDF 업로드 및 FAISS 인덱스에 추가"""
@@ -29,28 +30,32 @@ async def upload_pdf(file: UploadFile):
     with open(pdf_path, "wb") as f:
         f.write(await file.read())
 
-    # 텍스트 추출 및 임베딩 생성
-    text = extract_text_from_pdf(pdf_path)
-    embedding = generate_embedding(text)
-
-    # FAISS 인덱스에 추가
-    faiss_index.add(np.array([embedding]))
-    save_faiss_index(faiss_index, INDEX_PATH)
-
     return {"message": f"{file.filename} 업로드 및 인덱스에 추가됨"}
 
 
-@app.post("/search")
-async def search_similar_text(query: str):
-    """입력 텍스트와 유사한 벡터 검색"""
-    embedding = generate_embedding(query)
-    indices, distances = search_similar(embedding, faiss_index)
+# @app.post("/search")
+# async def search_similar_text(query: str):
+#     """입력 텍스트와 유사한 벡터 검색"""
+#     embedding = generate_embedding(query)
+#     indices, distances = search_similar(embedding, faiss_index)
 
-    return {"indices": indices.tolist(), "distances": distances.tolist()}
+#     return {"indices": indices.tolist(), "distances": distances.tolist()}
 
 
 @app.post("/evaluate")
-async def evaluate_text(query: str):
+async def evaluate_text(filename:str, query: str):
     """입력 텍스트 평가 및 개선 방향 생성"""
-    feedback = generate_feedback(query)
+
+    # 기존의 search api 내부에 있던 것
+    #  텍스트 추출 및 임베딩 생성
+    pdf_path = f"data/{filename}"
+    text = extract_text_from_pdf(pdf_path)
+    user_embedding = generate_embedding(text)
+
+    indices, distances = search_similar(user_embedding, faiss_index)
+    # 가장 가까운 인덱스와 거리
+    closest_index = int(indices[0])  # 1D 배열의 첫 번째 값 추출
+    closest_text = faiss_index.reconstruct(closest_index)  # FAISS에서 벡터 복원
+    
+    feedback = generate_feedback(text, closest_text, query)
     return {"feedback": feedback}
