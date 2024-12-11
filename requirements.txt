@@ -1,9 +1,20 @@
-fastapi==0.115.6
-uvicorn[standard]==0.23.1
+# FastAPI 및 관련 라이브러리
+fastapi>=0.68.0,<0.69.0
+pydantic>=1.8.0,<2.0.0
+uvicorn>=0.15.0,<0.16.0
+
+# FAISS 및 OpenAI 관련 라이브러리
 faiss-cpu==1.7.4
-openai
+openai==0.28.0
+
+# 환경 변수 관리
 python-dotenv==1.0.0
+
+# PDF 처리 라이브러리
 PyPDF2==3.0.1
-numpy
-pydantic==2.2.1
+
+# NumPy 버전 제한
+numpy<2
+
+# 멀티파트 폼 데이터 지원
 python-multipart==0.0.6
