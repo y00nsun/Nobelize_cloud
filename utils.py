@@ -3,8 +3,9 @@ import faiss
 import numpy as np
 from PyPDF2 import PdfReader
 import os
-from openai import OpenAI
-client = OpenAI()
+
+# OpenAI API 키 설정
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 def extract_text_from_pdf(pdf_path):
@@ -18,7 +19,8 @@ def extract_text_from_pdf(pdf_path):
 
 def generate_embedding(text, model="text-embedding-ada-002"):
     text = text.replace("\n", " ")
-    return client.embeddings.create(input = [text], model=model).data[0].embedding
+    response = openai.Embedding.create(input=[text], model=model)
+    return np.array(response['data'][0]['embedding'])
 
 
 def load_faiss_index(index_path, dimension):
@@ -45,6 +47,40 @@ def search_similar(embedding, faiss_index, k=5):
     # indices와 distances 반환 (1D로 압축)
     return indices[0], distances[0]
 
+
+def generate_feedback(user_text, closest_text,query):
+   # 4. OpenAI GPT를 사용해 응답 생성
+    prompt = f"""사용자의 문학 작품을 평가하고 개선 방향을 제시해주세요:
+    
+    사용자의 작품 내용:
+    {user_text}
+    
+    노벨 수상작과 비교 (가장 유사한 작품 내용):
+    {closest_text}
+    
+    사용자 질문:
+    {query}
+
+    1. 사용자 작품의 문학적 스타일 평가:
+    2. 노벨 수상작과의 주요 차이점:
+    3. 개선 방향 제시:
+    """
+    completion = openai.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": "당신은 문맥 기반 정보를 활용해 사용자 질문에 정확하고 친절하게 답변하는 한국어 전문가입니다."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+    # answer= completion.choices[0].message.content
+    # return {"answer": answer}
+    return completion['choices'][0]['message']['content']
 
 # def generate_feedback(text):
 #     """OpenAI API로 작품 평가 및 개선 방향 생성"""
@@ -122,40 +158,4 @@ def search_similar(embedding, faiss_index, k=5):
 #     answer = completion.choices[0].message
 
 #     return {"answer": answer}
-
-def generate_feedback(user_text, closest_text,query):
-   # 4. OpenAI GPT를 사용해 응답 생성
-    prompt = f"""사용자의 문학 작품을 평가하고 개선 방향을 제시해주세요:
-    
-    사용자의 작품 내용:
-    {user_text}
-    
-    노벨 수상작과 비교 (가장 유사한 작품 내용):
-    {closest_text}
-    
-    사용자 질문:
-    {query}
-
-    1. 사용자 작품의 문학적 스타일 평가:
-    2. 노벨 수상작과의 주요 차이점:
-    3. 개선 방향 제시:
-    """
-    completion = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": "당신은 문맥 기반 정보를 활용해 사용자 질문에 정확하고 친절하게 답변하는 한국어 전문가입니다."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-    )
-    answer= completion.choices[0].message.content
-
-    return {"answer": answer}
-
-
 

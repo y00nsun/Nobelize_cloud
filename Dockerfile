@@ -7,8 +7,8 @@ WORKDIR /app
 # 의존성 설치를 위해 requirements.txt 복사
 COPY requirements.txt .
 
-# NumPy 버전 제한과 FAISS 설치
-RUN pip install --no-cache-dir numpy<2 && pip install --no-cache-dir -r requirements.txt
+# NumPy 설치 후 다른 의존성 설치
+RUN pip install --no-cache-dir "numpy<2" && pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 소스 복사
 COPY . .
