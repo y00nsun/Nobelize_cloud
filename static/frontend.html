@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nobelize Service</title>
+    <script>
+        let extractedText = ""; // 업로드한 PDF의 텍스트를 저장
+
+        // PDF 업로드 및 텍스트 추출
+        async function uploadPDF() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    extractedText = result.extracted_text;
+                    document.getElementById('uploadResult').innerText = "PDF uploaded and text extracted successfully!";
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Failed to upload PDF. Please try again.');
+            }
+        }
+
+        // 유사 텍스트 검색
+        async function searchSimilar() {
+            if (!extractedText) {
+                alert('Please upload a PDF first!');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: extractedText })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById('output').innerText = `Search Results:\n${JSON.stringify(result, null, 2)}`;
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Failed to search similar texts. Please try again.');
+            }
+        }
+
+        // 텍스트 평가
+        async function evaluateText() {
+            if (!extractedText) {
+                alert('Please upload a PDF first!');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/evaluate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: extractedText })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById('output').innerText = `Evaluation Feedback:\n${JSON.stringify(result, null, 2)}`;
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Failed to evaluate text. Please try again.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Nobelize Service</h1>
+
+    <!-- PDF 업로드 -->
+    <label for="fileInput">Upload a PDF:</label>
+    <input type="file" id="fileInput" />
+    <button onclick="uploadPDF()">Upload PDF</button>
+    <p id="uploadResult"></p>
+
+    <!-- 기능 버튼 -->
+    <button onclick="searchSimilar()">Search Similar</button>
+    <button onclick="evaluateText()">Evaluate Text</button>
+
+    <!-- 결과 출력 -->
+    <h2>Results</h2>
+    <pre id="output"></pre>
+</body>
+</html>
