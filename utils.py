@@ -3,9 +3,9 @@ import faiss
 import numpy as np
 from PyPDF2 import PdfReader
 import os
-
 # OpenAI API 키 설정
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
 
 
 def extract_text_from_pdf(pdf_path):
@@ -19,8 +19,25 @@ def extract_text_from_pdf(pdf_path):
 
 def generate_embedding(text, model="text-embedding-ada-002"):
     text = text.replace("\n", " ")
-    response = openai.Embedding.create(input=[text], model=model)
-    return np.array(response['data'][0]['embedding'])
+    MAX_TOKENS = 8192
+     # 텍스트를 청크로 나누기
+    def split_into_chunks(text, chunk_size):
+        return [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
+
+    # 청크 생성
+    CHUNK_SIZE = MAX_TOKENS * 4  # 토큰당 약 4글자 기준으로 계산
+    chunks = split_into_chunks(text, CHUNK_SIZE)
+
+    embeddings = []
+    for chunk in chunks:
+        response = openai.Embedding.create(input=chunk, model=model).data[0].embedding
+        embeddings.append(response)
+
+    # 여러 임베딩 평균화
+    final_embedding = [sum(x) / len(embeddings) for x in zip(*embeddings)]
+    return final_embedding
+  
+    # return np.array(response['data'][0]['embedding'])
 
 
 def load_faiss_index(index_path, dimension):
@@ -49,14 +66,23 @@ def search_similar(embedding, faiss_index, k=5):
 
 
 def generate_feedback(user_text, closest_text,query):
+    MAX_PROMPT_TOKENS = 8192  # 모델의 최대 토큰 제한
+    SAFETY_MARGIN = 500  # completion 토큰을 위해 여유 공간 확보
+     # 텍스트를 최대 길이에 맞게 자르기
+    def truncate_text(text, max_tokens):
+        return text[:max_tokens * 4]  # 대략적인 문자 길이 기준
+
+    user_text_truncated = truncate_text(user_text, (MAX_PROMPT_TOKENS - SAFETY_MARGIN) // 2)
+    closest_text_truncated = truncate_text(closest_text, (MAX_PROMPT_TOKENS - SAFETY_MARGIN) // 2)
+
    # 4. OpenAI GPT를 사용해 응답 생성
     prompt = f"""사용자의 문학 작품을 평가하고 개선 방향을 제시해주세요:
     
     사용자의 작품 내용:
-    {user_text}
+    {user_text_truncated}
     
     노벨 수상작과 비교 (가장 유사한 작품 내용):
-    {closest_text}
+    {closest_text_truncated}
     
     사용자 질문:
     {query}
@@ -65,7 +91,7 @@ def generate_feedback(user_text, closest_text,query):
     2. 노벨 수상작과의 주요 차이점:
     3. 개선 방향 제시:
     """
-    completion = openai.chat.completions.create(
+    completion = openai.ChatCompletion.create(
         model="gpt-4o-mini",
         messages=[
             {
@@ -78,9 +104,9 @@ def generate_feedback(user_text, closest_text,query):
             }
         ]
     )
-    # answer= completion.choices[0].message.content
-    # return {"answer": answer}
-    return completion['choices'][0]['message']['content']
+    answer= completion.choices[0].message.content
+    return {"answer": answer}
+    # return completion['choices'][0]['message']['content']
 
 # def generate_feedback(text):
 #     """OpenAI API로 작품 평가 및 개선 방향 생성"""

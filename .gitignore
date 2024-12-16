@@ -3,6 +3,7 @@ venv/
 
 # 환경 변수 파일
 .env
+openai-secret.yaml
 
 # PDF, 인덱스 디렉터리
 # data/
