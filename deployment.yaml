@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nobelize-deployment
+  labels:
+    app: nobelize-app
+spec:
+  replicas: 3 # 초기 Pod 수 (HPA 적용 가능)
+  selector:
+    matchLabels:
+      app: nobelize-app
+  template:
+    metadata:
+      labels:
+        app: nobelize-app
+    spec:
+      containers:
+        - name: nobelize-container
+          image: chennielee/nobelize-v7:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openai-secret
+                  key: OPENAI_API_KEY
+            - name: FAISS_INDEX_PATH
+              value: "/app/embeddings/faiss_index3.index"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts: # 공유 스토리지를 컨테이너 내부로 마운트
+            - name: shared-volume
+              mountPath: /app/data
+      volumes:
+        - name: shared-volume
+          persistentVolumeClaim:
+            claimName: shared-pvc

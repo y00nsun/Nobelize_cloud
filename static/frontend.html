@@ -1,113 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nobelize Service</title>
-    <script>
-        let extractedText = ""; // 업로드한 PDF의 텍스트를 저장
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nobelize Service Chat</title>
+    <!-- CSS 파일 연결 -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Nobelize Service Chat</h1>
 
-        // PDF 업로드 및 텍스트 추출
-        async function uploadPDF() {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-            
-            if (!file) {
-                alert('Please select a file!');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('file', file);
-
-            try {
-                const response = await fetch('http://127.0.0.1:8000/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    extractedText = result.extracted_text;
-                    document.getElementById('uploadResult').innerText = "PDF uploaded and text extracted successfully!";
-                } else {
-                    alert('Error: ' + result.error);
-                }
-            } catch (error) {
-                alert('Failed to upload PDF. Please try again.');
-            }
-        }
-
-        // 유사 텍스트 검색
-        async function searchSimilar() {
-            if (!extractedText) {
-                alert('Please upload a PDF first!');
-                return;
-            }
-
-            try {
-                const response = await fetch('http://127.0.0.1:8000/search', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ text: extractedText })
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    document.getElementById('output').innerText = `Search Results:\n${JSON.stringify(result, null, 2)}`;
-                } else {
-                    alert('Error: ' + result.error);
-                }
-            } catch (error) {
-                alert('Failed to search similar texts. Please try again.');
-            }
-        }
-
-        // 텍스트 평가
-        async function evaluateText() {
-            if (!extractedText) {
-                alert('Please upload a PDF first!');
-                return;
-            }
-
-            try {
-                const response = await fetch('http://127.0.0.1:8000/evaluate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ text: extractedText })
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    document.getElementById('output').innerText = `Evaluation Feedback:\n${JSON.stringify(result, null, 2)}`;
-                } else {
-                    alert('Error: ' + result.error);
-                }
-            } catch (error) {
-                alert('Failed to evaluate text. Please try again.');
-            }
-        }
-    </script>
-</head>
-<body>
-    <h1>Nobelize Service</h1>
-
-    <!-- PDF 업로드 -->
+    <!-- 파일 업로드 -->
     <label for="fileInput">Upload a PDF:</label>
     <input type="file" id="fileInput" />
     <button onclick="uploadPDF()">Upload PDF</button>
     <p id="uploadResult"></p>
 
-    <!-- 기능 버튼 -->
-    <button onclick="searchSimilar()">Search Similar</button>
-    <button onclick="evaluateText()">Evaluate Text</button>
+    <!-- 채팅 컨테이너 -->
+    <div class="chat-container" id="chatContainer"></div>
 
-    <!-- 결과 출력 -->
-    <h2>Results</h2>
-    <pre id="output"></pre>
-</body>
+    <!-- 입력창 -->
+    <div class="input-container">
+      <input type="text" id="userQuery" placeholder="Ask something..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+      let uploadedFileName = "";
+
+      // 페이지 로드 시 초기 메시지
+      window.onload = function () {
+        addMessageToChat("System", "안녕하세요! 작품을 업로드 해주세요.");
+      };
+
+      // PDF 업로드 함수
+      async function uploadPDF() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+
+        if (!file) {
+          alert("Please select a file to upload.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const response = await fetch("http://localhost:30007/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            uploadedFileName = file.name;
+            document.getElementById(
+              "uploadResult"
+            ).innerText = `${file.name} has been successfully uploaded.`;
+            addMessageToChat("System", "파일이 성공적으로 업로드되었습니다!");
+          } else {
+            alert("Failed to upload file.");
+          }
+        } catch (error) {
+          console.error("Upload error:", error);
+          alert("Failed to upload file. Please try again.");
+        }
+      }
+
+      // 텍스트 평가 함수
+      async function sendMessage() {
+        const queryInput = document.getElementById("userQuery");
+        const userQuery = queryInput.value.trim();
+
+        if (!uploadedFileName) {
+          alert("Please upload a file first.");
+          return;
+        }
+
+        if (!userQuery) {
+          alert("Please enter a query.");
+          return;
+        }
+
+        // 사용자 메시지 추가
+        addMessageToChat("You", userQuery);
+        queryInput.value = "";
+
+        // AI 응답 생성 대기 메시지
+        addMessageToChat("System", "응답을 생성하는 중입니다...");
+
+        try {
+          const response = await fetch("http://localhost:30007/evaluate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filename: uploadedFileName,
+              query: userQuery,
+            }),
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            const feedback = result.feedback.answer; // 제대로 된 위치에서 가져오기
+            addMessageToChat("AI", feedback);
+          } else {
+            const errorData = await response.json();
+            addMessageToChat(
+              "AI",
+              `Error: ${errorData.detail || "Unknown error"}`
+            );
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          addMessageToChat("AI", "Failed to fetch response. Please try again.");
+        }
+      }
+
+      // 채팅 메시지 추가 함수
+      function addMessageToChat(sender, message) {
+        const chatContainer = document.getElementById("chatContainer");
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("chat-message");
+        messageDiv.classList.add(
+          sender === "You" ? "user-message" : "bot-message"
+        );
+        messageDiv.innerText = `${sender}: ${message}`;
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    </script>
+  </body>
 </html>

@@ -1,0 +1,70 @@
+/* 기본 스타일 */
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background-color: #f9f9f9;
+}
+
+h1 {
+  color: #333;
+}
+
+/* 채팅 컨테이너 */
+.chat-container {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: #fff;
+  height: 400px;
+  overflow-y: auto;
+}
+
+/* 채팅 메시지 */
+.chat-message {
+  margin: 10px 0;
+}
+
+.user-message {
+  color: #007bff;
+  text-align: right;
+  font-weight: bold;
+}
+
+.bot-message {
+  color: #28a745;
+  text-align: left;
+  font-weight: bold;
+}
+
+/* 입력창 및 버튼 스타일 */
+.input-container {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+input[type="text"] {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+p#uploadResult {
+  color: #28a745;
+  font-weight: bold;
+}
