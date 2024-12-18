@@ -3,10 +3,9 @@ import faiss
 import numpy as np
 from PyPDF2 import PdfReader
 import os
+
 # OpenAI API 키 설정
 openai.api_key = os.getenv("OPENAI_API_KEY")
-
-
 
 def extract_text_from_pdf(pdf_path):
     """PDF 파일에서 텍스트 추출"""
@@ -75,7 +74,8 @@ def generate_feedback(user_text, closest_text,query):
     user_text_truncated = truncate_text(user_text, (MAX_PROMPT_TOKENS - SAFETY_MARGIN) // 2)
     closest_text_truncated = truncate_text(closest_text, (MAX_PROMPT_TOKENS - SAFETY_MARGIN) // 2)
 
-   # 4. OpenAI GPT를 사용해 응답 생성
+   # 4. GPT를 사용해 응답 생성
+    # 프롬프트 설정
     prompt = f"""사용자의 문학 작품을 평가하고 개선 방향을 제시해주세요:
     
     사용자의 작품 내용:
@@ -91,6 +91,8 @@ def generate_feedback(user_text, closest_text,query):
     2. 노벨 수상작과의 주요 차이점:
     3. 개선 방향 제시:
     """
+
+    # 응답 생성
     completion = openai.ChatCompletion.create(
         model="gpt-4o-mini",
         messages=[
@@ -107,81 +109,3 @@ def generate_feedback(user_text, closest_text,query):
     answer= completion.choices[0].message.content
     return {"answer": answer}
     # return completion['choices'][0]['message']['content']
-
-# def generate_feedback(text):
-#     """OpenAI API로 작품 평가 및 개선 방향 생성"""
-#     prompt = f"""
-#     아래의 문학 작품을 평가하고 개선 방향을 제시해주세요:
-
-#     작품 내용:
-#     {text}
-
-#     1. 문학적 스타일 평가:
-#     2. 개선 방향:
-#     """
-#     response = openai.Completion.create(
-#         model="text-davinci-003",
-#         prompt=prompt,
-#         max_tokens=500
-#     )
-#     return response['choices'][0]['text'].strip()
-
-# def generate_feedback(user_text, closest_text, query):
-#     """OpenAI API로 작품 평가 및 개선 방향 생성"""
-#     prompt = f"""
-#     사용자의 문학 작품을 평가하고 개선 방향을 제시해주세요:
-    
-#     사용자의 작품 내용:
-#     {user_text}
-    
-#     노벨 수상작과 비교 (가장 유사한 작품 내용):
-#     {closest_text}
-    
-#     사용자 질문:
-#     {query}
-
-#     1. 사용자 작품의 문학적 스타일 평가:
-#     2. 노벨 수상작과의 주요 차이점:
-#     3. 개선 방향 제시:
-#     """
-#     response = openai.Completion.create(
-#         model="text-davinci-003",
-#         prompt=prompt,
-#         max_tokens=500
-#     )
-#     return response['choices'][0]['text'].strip()
-
-# def generate_feedback(query):
-#    # 4. OpenAI GPT를 사용해 응답 생성
-#     prompt = f"사용자의 문학 작품을 평가하고 개선 방향을 제시해주세요:
-    
-#     사용자의 작품 내용:
-#     {user_text}
-    
-#     노벨 수상작과 비교 (가장 유사한 작품 내용):
-#     {closest_text}
-    
-#     사용자 질문:
-#     {query}
-
-#     1. 사용자 작품의 문학적 스타일 평가:
-#     2. 노벨 수상작과의 주요 차이점:
-#     3. 개선 방향 제시:
-#     "
-#     completion = client.chat.completions.create(
-#         model="gpt-4o-mini",
-#         messages=[
-#             {
-#                 "role": "system",
-#                 "content": "당신은 문맥 기반 정보를 활용해 사용자 질문에 정확하고 친절하게 답변하는 한국어 전문가입니다."
-#             },
-#             {
-#                 "role": "user",
-#                 "content": prompt
-#             }
-#         ]
-#     )
-#     answer = completion.choices[0].message
-
-#     return {"answer": answer}
-

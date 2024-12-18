@@ -10,7 +10,7 @@ from pydantic import BaseModel
 import socket
 
 
-# 환경 변수 로드
+# 환경 변수 load
 load_dotenv()
 
 # OpenAI API 키 설정
@@ -46,7 +46,7 @@ app.mount("/static", StaticFiles(directory="./static"), name="static")
 async def read_root():
     return FileResponse("./static/frontend.html")
 
-#upload type1: 사용자가 자기 작품을 업로드 -> data 아래에 저장된다.
+# upload type1: 사용자가 자기 작품을 업로드 -> data 아래에 저장된다.
 @app.post("/upload")
 async def upload_pdf(file: UploadFile):
     """PDF 업로드 및 FAISS 인덱스에 추가"""
@@ -84,22 +84,3 @@ async def evaluate_text(request: EvaluateRequest):
 
     feedback = generate_feedback(text, closest_text, query)
     return {"feedback": feedback}
-
-
-# @app.post("/evaluate")
-# async def evaluate_text(filename:str, query: str):
-#     """입력 텍스트 평가 및 개선 방향 생성"""
-
-#     # 기존의 search api 내부에 있던 것
-#     #  텍스트 추출 및 임베딩 생성
-#     pdf_path = f"data/{filename}"
-#     text = extract_text_from_pdf(pdf_path)
-#     user_embedding = generate_embedding(text)
-
-#     indices, distances = search_similar(user_embedding, faiss_index)
-#     # 가장 가까운 인덱스와 거리
-#     closest_index = int(indices[0])  # 1D 배열의 첫 번째 값 추출
-#     closest_text = faiss_index.reconstruct(closest_index)  # FAISS에서 벡터 복원
-    
-#     feedback = generate_feedback(text, closest_text, query)
-#     return {"feedback": feedback}

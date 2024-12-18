@@ -7,8 +7,8 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 80 # 외부에서 접근할 포트
-      targetPort: 8000 # 컨테이너 내부 포트
-      nodePort: 30007 # 노드에서 접근할 포트 (30000~32767 사이)
+    - port: 80          # 외부에서 접근할 포트
+      targetPort: 8000  # 컨테이너 내부 포트
+      nodePort: 30007   # 노드에서 접근할 포트 (30000~32767 사이)
   selector:
     app: nobelize-app

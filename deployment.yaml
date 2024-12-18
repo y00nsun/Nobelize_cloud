@@ -34,7 +34,7 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
-          volumeMounts: # 공유 스토리지를 컨테이너 내부로 마운트
+          volumeMounts:  # 공유 스토리지를 컨테이너 내부로 마운트
             - name: shared-volume
               mountPath: /app/data
       volumes:
