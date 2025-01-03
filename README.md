@@ -63,6 +63,9 @@ pip install -r requirements.txt
 ### **3. `실행`**
 
 ```bash
-uvicorn main:app --reload
 .\venv\Scripts\activate
+uvicorn main:app --reload
 ```
+
+---
+2024 클라우드시스템 팀 프로젝트
