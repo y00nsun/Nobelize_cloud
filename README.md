@@ -1,4 +1,4 @@
-# Nobelize
+# ✨✍️Nobelize
 
 **AI-powered writing evaluation and refinement service — “Nobelize.”**
 
