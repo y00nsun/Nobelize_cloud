@@ -1,66 +1,67 @@
 # Nobelize
 
-**AI 기반의 글 평가/수정 서비스, “**Nobelize**”**
+**AI-powered writing evaluation and refinement service — “Nobelize.”**
 
-- “Nobel(노벨 문학상) + Realize(실현하다)”
-- AI와 Docker/Kubernetes 클라우드 시스템을 활용한 글 평가/수정 서비스.
+- “Nobel (Nobel Prize in Literature) + Realize (to bring into reality)”
+- A writing enhancement system built using AI models and a Docker/Kubernetes-based cloud infrastructure.
 
-#
+---
 
-### 폴더 구조
+## Project Structure
 
 ```plaintext
 Nobelize_cloud/
-├── main.py                  # FastAPI 서버 실행 코드
-├── utils.py                 # FAISS 및 OpenAI 관련 유틸리티 함수
-├── embeddings/              # FAISS 인덱스 저장
+├── main.py                  # FastAPI server entry point
+├── utils.py                 # FAISS and OpenAI utility functions
+├── embeddings/              # Stored FAISS index
 │   └── faiss_index3.index
-├── data/                    # PDF 파일 저장
-│   └── example.pdf          # 테스트용 PDF 파일
-├── requirements.txt         # 필요한 패키지 목록
-├── .env                     # 환경 변수 파일 (OpenAI API Key)
-└── .gitignore               # Git 무시 파일 ( .env 등)
+├── data/                    # PDF storage directory
+│   └── example.pdf          # Sample test PDF
+├── requirements.txt         # Package dependencies
+├── .env                     # Environment variables (OpenAI API Key)
+└── .gitignore               # Files to ignore (e.g., .env)
 ```
 
-### **1. Python 가상환경**
+---
 
-1. 가상환경 생성
+## 1. Python Virtual Environment
 
+1. Create a virtual environment:
    ```bash
    python -m venv venv
    ```
 
-2. 가상환경 활성화
+2. Activate the virtual environment:
 
-   - Windows (CMD):
+   **Windows (CMD):**
+   ```bash
+   venv\Scripts\activate
+   ```
 
-     ```bash
-     venv\Scripts\activate
-     ```
+   **Windows (PowerShell):**
+   ```powershell
+   .\venv\Scripts\activate
+   ```
 
-   - Windows (PowerShell):
+   **Linux / macOS:**
+   ```bash
+   source venv/bin/activate
+   ```
 
-     ```powershell
-     .\venv\Scripts\activate
-     ```
-
-   - Linux/MacOS:
-     ```bash
-     source venv/bin/activate
-     ```
-
-3. 가상환경 비활성화
+3. Deactivate:
    ```bash
    deactivate
    ```
 
-### **2. `requirements.txt`**
+
+## 2. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### **3. `실행`**
+
+## 3. Run the Server
 
 ```bash
 .\venv\Scripts\activate
@@ -68,4 +69,5 @@ uvicorn main:app --reload
 ```
 
 ---
-2024 클라우드시스템 팀 프로젝트
+
+2024 Cloud System Team Project
